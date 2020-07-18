@@ -8,8 +8,11 @@ import com.benwillcabinets.benwillestimator.refacing.materials.Style;
 import com.benwillcabinets.benwillestimator.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.websocket.server.PathParam;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,6 +26,24 @@ public class ProductsController {
     @GetMapping("/products")
     List<Product> getAllProducts() {
         return productService.findAll();
+    }
+
+    @PutMapping("/products/{id}")
+    ResponseEntity<Integer> updateProduct(@PathVariable("id") Integer id, @RequestBody Product product){
+        Product productToUpdate = productService.findById(id).get();
+        productToUpdate.setCostPrice(product.getCostPrice());
+        productToUpdate.setSellPrice(product.getSellPrice());
+        productToUpdate.setQty(product.getQty());
+        productToUpdate.setDescription(product.getDescription());
+        productToUpdate.setName(product.getName());
+        productToUpdate.setUOM(product.getUOM());
+        return new ResponseEntity<>(id, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/products/{id}")
+    ResponseEntity<Integer> deleteProduct(@PathVariable("id") Integer id){
+        productService.deleteById(id);
+        return new ResponseEntity<>(id, HttpStatus.OK);
     }
 
     @GetMapping("/productsOfCategory")

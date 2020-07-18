@@ -25,12 +25,26 @@ public class ProjectEstimatesController {
     }
 
     @PostMapping("/projects/{id}/items")
-    ProjectEstimate addProductItem(@PathVariable("id") int projectId, @RequestBody Product product) {
+    ProjectEstimate addProjectItem(@PathVariable("id") int projectId, @RequestBody Product product) {
         ProjectEstimate project =  projectEstimateService.findById(projectId).get();
         Product productFound = productService.findById(product.getId()).get();
         ProjectItem item = new ProjectItem();
         item.setProduct(productFound);
+        item.setSellProjectPrice(productFound.getSellPrice());
+        item.setCostProjectPrice(productFound.getCostPrice());
+        item.setQty(1);
         project.getListOfProducts().add(item);
+        projectEstimateService.save(project);
+        return project;
+    }
+
+    @PutMapping("/projects/{id}/items/{itemId}")
+    ProjectEstimate updateProductItem(@PathVariable("id") int projectId, @PathVariable("itemId") int itemId, @RequestBody ProjectItem projectItem) {
+        ProjectEstimate project =  projectEstimateService.findById(projectId).get();
+        ProjectItem itemToUpdate = findProjectItem(itemId, project);
+        itemToUpdate.setCostProjectPrice(projectItem.getCostProjectPrice());
+        itemToUpdate.setSellProjectPrice(projectItem.getSellProjectPrice());
+        itemToUpdate.setQty(projectItem.getQty());
         projectEstimateService.save(project);
         return project;
     }
@@ -38,15 +52,20 @@ public class ProjectEstimatesController {
     @DeleteMapping("/projects/{id}/items/{itemId}")
     ProjectEstimate removeProductItem(@PathVariable("id") int projectId, @PathVariable("itemId") int itemId) {
         ProjectEstimate project =  projectEstimateService.findById(projectId).get();
+        ProjectItem itemToDelete = findProjectItem(itemId, project);
+        project.getListOfProducts().remove(itemToDelete);
+        projectEstimateService.save(project);
+        return project;
+    }
+
+    private ProjectItem findProjectItem(@PathVariable("itemId") int itemId, ProjectEstimate project) {
         ProjectItem itemToDelete = null;
         for(int i=0; i < project.getListOfProducts().size(); i++){
             if(project.getListOfProducts().get(i).getId().equals(itemId)) {
                 itemToDelete = project.getListOfProducts().get(i);
             }
         }
-        project.getListOfProducts().remove(itemToDelete);
-        projectEstimateService.save(project);
-        return project;
+        return itemToDelete;
     }
 
     @GetMapping("/projects/{id}/items")
