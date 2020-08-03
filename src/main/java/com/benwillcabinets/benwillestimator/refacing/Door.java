@@ -13,8 +13,8 @@ public class Door {
     private Integer id;
     private double doorCost;
     private double doorSell;
-    private String width;
-    private String height;
+    private double width;
+    private double height;
     private String special_notes;
 
     public Integer getId() {
@@ -41,19 +41,19 @@ public class Door {
         this.doorSell = doorSell;
     }
 
-    public String getWidth() {
+    public double getWidth() {
         return width;
     }
 
-    public void setWidth(String width) {
+    public void setWidth(double width) {
         this.width = width;
     }
 
-    public String getHeight() {
+    public double getHeight() {
         return height;
     }
 
-    public void setHeight(String height) {
+    public void setHeight(double height) {
         this.height = height;
     }
 

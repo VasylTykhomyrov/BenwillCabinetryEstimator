@@ -1,6 +1,6 @@
 package com.benwillcabinets.benwillestimator.domain;
 
-import org.hibernate.annotations.Cascade;
+import com.benwillcabinets.benwillestimator.refacing.RefacingItem;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -13,6 +13,8 @@ public class ProjectEstimate {
     private Integer id;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectItem> listOfProducts = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RefacingItem> listOfRefacingItems = new ArrayList<>();
     private String address;
     private String contactInfo;
 

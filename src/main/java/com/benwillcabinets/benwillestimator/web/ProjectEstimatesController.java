@@ -73,4 +73,14 @@ public class ProjectEstimatesController {
         ProjectEstimate project =  projectEstimateService.findById(projectId).get();
         return project.getListOfProducts();
     }
+
+    @GetMapping("/projects/{id}")
+    ProjectEstimate getProject(@PathVariable("id") int projectId) {
+        return projectEstimateService.findById(projectId).get();
+    }
+
+    @GetMapping("/projects")
+    List<ProjectEstimate> getAllProject() {
+        return projectEstimateService.findAll();
+    }
 }

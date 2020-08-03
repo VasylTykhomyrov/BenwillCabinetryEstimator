@@ -37,6 +37,7 @@ public class ProductsController {
         productToUpdate.setDescription(product.getDescription());
         productToUpdate.setName(product.getName());
         productToUpdate.setUOM(product.getUOM());
+        productService.save(productToUpdate);
         return new ResponseEntity<>(id, HttpStatus.OK);
     }
 
