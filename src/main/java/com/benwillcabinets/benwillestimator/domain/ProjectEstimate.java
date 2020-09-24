@@ -1,5 +1,6 @@
 package com.benwillcabinets.benwillestimator.domain;
 
+import com.benwillcabinets.benwillestimator.refacing.RefacingInfo;
 import com.benwillcabinets.benwillestimator.refacing.RefacingItem;
 
 import javax.persistence.*;
@@ -13,6 +14,8 @@ public class ProjectEstimate {
     private Integer id;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectItem> listOfProducts = new ArrayList<>();
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    private RefacingInfo refacingInfo;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RefacingItem> listOfRefacingItems = new ArrayList<>();
     private String address;
@@ -26,12 +29,28 @@ public class ProjectEstimate {
         this.id = id;
     }
 
+    public RefacingInfo getRefacingInfo() {
+        return refacingInfo;
+    }
+
+    public void setRefacingInfo(RefacingInfo refacingInfo) {
+        this.refacingInfo = refacingInfo;
+    }
+
     public List<ProjectItem> getListOfProducts() {
         return listOfProducts;
     }
 
     public void setListOfProducts(List<ProjectItem> listOfProducts) {
         this.listOfProducts = listOfProducts;
+    }
+
+    public List<RefacingItem> getListOfRefacingItems() {
+        return listOfRefacingItems;
+    }
+
+    public void setListOfRefacingItems(List<RefacingItem> listOfRefacingItems) {
+        this.listOfRefacingItems = listOfRefacingItems;
     }
 
     public String getAddress() {

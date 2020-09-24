@@ -2,17 +2,18 @@ package com.benwillcabinets.benwillestimator.web;
 
 import com.benwillcabinets.benwillestimator.domain.Category;
 import com.benwillcabinets.benwillestimator.domain.Product;
+import com.benwillcabinets.benwillestimator.refacing.RefacingItem;
 import com.benwillcabinets.benwillestimator.refacing.materials.Colour;
 import com.benwillcabinets.benwillestimator.refacing.materials.Handles;
 import com.benwillcabinets.benwillestimator.refacing.materials.Style;
 import com.benwillcabinets.benwillestimator.service.ProductService;
+import com.benwillcabinets.benwillestimator.service.RefacingItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.websocket.server.PathParam;
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,6 +23,9 @@ import java.util.List;
 public class ProductsController {
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private RefacingItemService refacingItemService;
 
     @GetMapping("/products")
     List<Product> getAllProducts() {
@@ -79,4 +83,6 @@ public class ProductsController {
     Product addProduct(@RequestBody Product product) {
         return productService.save(product);
     }
+
+
 }

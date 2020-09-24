@@ -3,8 +3,11 @@ package com.benwillcabinets.benwillestimator.web;
 import com.benwillcabinets.benwillestimator.domain.Product;
 import com.benwillcabinets.benwillestimator.domain.ProjectEstimate;
 import com.benwillcabinets.benwillestimator.domain.ProjectItem;
+import com.benwillcabinets.benwillestimator.refacing.RefacingInfo;
+import com.benwillcabinets.benwillestimator.refacing.RefacingItem;
 import com.benwillcabinets.benwillestimator.service.ProductService;
 import com.benwillcabinets.benwillestimator.service.ProjectEstimateService;
+import com.benwillcabinets.benwillestimator.service.RefacingItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +21,8 @@ public class ProjectEstimatesController {
     private ProjectEstimateService projectEstimateService;
     @Autowired
     private ProductService productService;
+    @Autowired
+    private RefacingItemService refacingItemService;
 
     @PostMapping("/projects")
     ProjectEstimate addProject(@RequestBody ProjectEstimate project) {
@@ -36,6 +41,46 @@ public class ProjectEstimatesController {
         project.getListOfProducts().add(item);
         projectEstimateService.save(project);
         return project;
+    }
+
+    @PostMapping("/projects/{id}/refacing-info")
+    ProjectEstimate saveRefacingInfo(@PathVariable("id") int projectId, @RequestBody RefacingInfo info) {
+        ProjectEstimate project =  projectEstimateService.findById(projectId).get();
+        RefacingInfo currentInfo = project.getRefacingInfo();
+        if(currentInfo == null) {
+            currentInfo = info;
+        } else {
+            currentInfo.setColour(info.getColour());
+            currentInfo.setHandles(info.getHandles());
+            currentInfo.setStyle(info.getStyle());
+        }
+        project.setRefacingInfo(currentInfo);
+        projectEstimateService.save(project);
+        return project;
+    }
+
+    @PostMapping("/projects/{id}/refacing-items")
+    ProjectEstimate addProjectItem(@PathVariable("id") int projectId, @RequestBody RefacingItem item) {
+        ProjectEstimate project =  projectEstimateService.findById(projectId).get();
+        item.setCostPSF(project.getRefacingInfo().getSFPrice());
+        refacingItemService.save(item);
+        project.getListOfRefacingItems().add(item);
+        projectEstimateService.save(project);
+        return project;
+    }
+
+    @DeleteMapping("/projects/{id}/refacing-items/{itemId}")
+    ProjectEstimate removeRefacingItem(@PathVariable("id") int projectId, @PathVariable("itemId") int itemId) {
+        ProjectEstimate project =  projectEstimateService.findById(projectId).get();
+        RefacingItem itemToDelete = findRefacingItem(itemId, project);
+        project.getListOfRefacingItems().remove(itemToDelete);
+        projectEstimateService.save(project);
+        return project;
+    }
+
+    private void calculateCostPSF(RefacingItem item) {
+        // calculate based on colour and style
+        item.setCostPSF(23);
     }
 
     @PutMapping("/projects/{id}/items/{itemId}")
@@ -58,6 +103,16 @@ public class ProjectEstimatesController {
         return project;
     }
 
+    private RefacingItem findRefacingItem(int itemId, ProjectEstimate project) {
+        RefacingItem itemToDelete = null;
+        for(int i=0; i < project.getListOfRefacingItems().size(); i++){
+            if(project.getListOfRefacingItems().get(i).getId().equals(itemId)) {
+                itemToDelete = project.getListOfRefacingItems().get(i);
+            }
+        }
+        return itemToDelete;
+    }
+
     private ProjectItem findProjectItem(@PathVariable("itemId") int itemId, ProjectEstimate project) {
         ProjectItem itemToDelete = null;
         for(int i=0; i < project.getListOfProducts().size(); i++){
@@ -69,9 +124,15 @@ public class ProjectEstimatesController {
     }
 
     @GetMapping("/projects/{id}/items")
-    List<ProjectItem> addProductItem(@PathVariable("id") int projectId) {
+    List<ProjectItem> getProductItems(@PathVariable("id") int projectId) {
         ProjectEstimate project =  projectEstimateService.findById(projectId).get();
         return project.getListOfProducts();
+    }
+
+    @GetMapping("/projects/{id}/refacing-items")
+    List<RefacingItem> getRefacingItems(@PathVariable("id") int projectId) {
+        ProjectEstimate project =  projectEstimateService.findById(projectId).get();
+        return project.getListOfRefacingItems();
     }
 
     @GetMapping("/projects/{id}")
