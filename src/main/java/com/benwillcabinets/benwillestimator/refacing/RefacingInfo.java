@@ -27,9 +27,23 @@ public class RefacingInfo {
     }
 
     public double getSFPrice(){
-        if((colour == Colour.WHITE)&&(style == Style.SHAKER_VGROOVE)) {
-        return 7.60;
+        if (colour == Colour.WHITE){
+            if (style==Style.SHAKER_VGROOVE) return 7.60;
+            else if (style == Style.SHAKER_GROOVELESS) return 7.60;
+            else if (style == Style.RAISED) return 4.80;
+            else if (style == Style.FLAT) return 5;
+            else if (style == Style.CALGARY) return 9;
+            else if (style == Style._7000) return 9;
         }
+        else if (colour == Colour.LIGHT_GREY){
+            if (style==Style.SHAKER_VGROOVE) return 8.30;
+            else if (style == Style.SHAKER_GROOVELESS) return 8.30;
+            else if (style == Style.RAISED) return 5.5;
+            else if (style == Style.FLAT) return 5.5;
+            else if (style == Style.CALGARY) return 9.5;
+            else if (style == Style._7000) return 9.5;
+        }
+
         return 0;
     }
 
