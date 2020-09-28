@@ -1,5 +1,6 @@
 package com.benwillcabinets.benwillestimator.web;
 
+import com.benwillcabinets.benwillestimator.domain.Category;
 import com.benwillcabinets.benwillestimator.domain.Product;
 import com.benwillcabinets.benwillestimator.domain.ProjectEstimate;
 import com.benwillcabinets.benwillestimator.domain.ProjectItem;
@@ -11,7 +12,12 @@ import com.benwillcabinets.benwillestimator.service.RefacingItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -35,8 +41,8 @@ public class ProjectEstimatesController {
         Product productFound = productService.findById(product.getId()).get();
         ProjectItem item = new ProjectItem();
         item.setProduct(productFound);
-        item.setSellProjectPrice(productFound.getSellPrice());
-        item.setCostProjectPrice(productFound.getCostPrice());
+        item.setSellProjectPrice(toBigDecimal(productFound.getSellPrice()));
+        item.setCostProjectPrice(toBigDecimal(productFound.getCostPrice()));
         item.setQty(1);
         project.getListOfProducts().add(item);
         projectEstimateService.save(project);
@@ -93,6 +99,52 @@ public class ProjectEstimatesController {
         projectEstimateService.save(project);
         return project;
     }
+
+    @PutMapping("/projects/{id}")
+    ProjectEstimate createRefacingProduct(@PathVariable("id") int projectId) {
+        ProjectEstimate project =  projectEstimateService.findById(projectId).get();
+
+        String productName = "Refacing project - " + project.getAddress();
+        Optional<Product> productFound = productService.findByName(productName);
+
+        RefacingInfo info = project.getRefacingInfo();
+        double sfPrice = info.getSFPrice();
+        double costPrice = project.getListOfRefacingItems().stream()
+                .mapToDouble(item-> item.getWidth() * item.getHeight() / 144 * sfPrice).sum();
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Product refacingProduct = new Product();
+        refacingProduct.setCategory(Category.CABINETRY);
+        refacingProduct.setName(productName);
+        refacingProduct.setUOM("1");
+        refacingProduct.setDescription("Created on: " + sdf.format(new Date()));
+        refacingProduct.setQty(1);
+        refacingProduct.setCostPrice((int)costPrice);
+        refacingProduct.setSellPrice((int)(costPrice * 2.25));
+        productService.save(refacingProduct);
+
+        if(productFound.isPresent()){
+            List<ProjectItem> items =  project.getListOfProducts();
+            items.forEach(i -> replaceProduct(i, productFound.get(), refacingProduct));
+            productService.delete(productFound.get());
+        }
+
+        projectEstimateService.save(project);
+        return project;
+    }
+
+    private void replaceProduct(ProjectItem item, Product productToMatch, Product refacingProduct) {
+        if(item.getProduct().getId().equals(productToMatch.getId())){
+            item.setProduct(refacingProduct);
+            item.setCostProjectPrice(toBigDecimal(refacingProduct.getCostPrice()));
+            item.setSellProjectPrice(toBigDecimal(refacingProduct.getSellPrice()));
+        }
+    }
+
+    private BigDecimal toBigDecimal(double value) {
+        return  BigDecimal.valueOf(value).setScale(2, RoundingMode.CEILING);
+    }
+
 
     @DeleteMapping("/projects/{id}/items/{itemId}")
     ProjectEstimate removeProductItem(@PathVariable("id") int projectId, @PathVariable("itemId") int itemId) {
