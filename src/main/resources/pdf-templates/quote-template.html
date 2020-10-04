@@ -1,0 +1,83 @@
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <style>
+            @font-face {
+                font-family: "Arial";
+                src: url("https://res.cloudinary.com/benwillcabinets/raw/upload/v1601832807/arial_oaqe2i.ttf");
+            }
+
+            body {
+                font-family: Arial;
+            }
+        </style>
+    </head>
+    <body>
+        <h1 style="background-color: orange; text-align: center; padding: 20px 0; letter-spacing: 2px; margin: 0 0 20px 0; font-weight: lighter">
+            QUOTATION
+        </h1>
+        <table style="width: 100%; font-weight: lighter;">
+            <tr style="display: flex; justify-content: space-between; flex-direction: column; align-content: center; align-items: center;">
+                <td>
+                    <div style="text-align: left; width: 100%;">
+                        <div style="color: darkorange; width: fit-content; font-weight: lighter; font-size: 20px;">
+                            Benwill Cabinets
+                        </div>
+                        <div style="width: 100%; font-size: 14px;">
+                            <div>Toronto ON</div>
+                            <div>Phone:<a href="tel:416-576-9111"> 416-576-9111</a>/<a href="tel:416-219-6304"> 416-219-6304</a></div>
+                            <div>info@benwillcabinets.com</div>
+                            <div>
+                                <a href="www.benwillcabinets.com">www.benwillcabinets.com</a>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div style="text-align: right; width: 100%; margin-left: 274px;">
+                        <div style="width: 167px; text-align: right;">
+                            <img src="https://res.cloudinary.com/benwillcabinets/image/upload/v1601774567/Logo_djjyvm.png" alt="logo" style="width: 100%; height: auto;"/>
+                        </div>
+                        <table style="text-align: center; border: 1px solid black; border-collapse: collapse; width: 167px; margin-top: 5px; font-weight: lighter;">
+                            <tr>
+                                <th style="border: 1px solid black; border-collapse: collapse; padding: 3px 5px; background-color: orange; font-weight: lighter;">Quote #</th>
+                                <th style="border: 1px solid black; border-collapse: collapse; padding: 3px 5px; background-color: orange; font-weight: lighter;">Date</th>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid black; border-collapse: collapse; padding: 3px 5px; font-weight: lighter;" th:text="'26'+${project.getId()}"></td>
+                                <td style="border: 1px solid black; border-collapse: collapse; padding: 3px 5px; font-weight: lighter;" th:text="${project.getDateCreated()}"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+        </table><br/>
+        <div style="background-color: lightgrey; font-weight: lighter; padding: 5px; border: 1px solid grey;">CUSTOMER INFORMATION:</div>
+        <div th:text="${project.address}" style="margin: 5px 0 20px 0;"></div>
+        <div style="background-color: lightgrey; font-weight: lighter; padding: 5px; border: 1px solid grey;">DESCRIPTION OF WORK</div>
+        <div style="margin: 5px 0 5px 0;">Renovation services as listed below:</div>
+        <table style="border: 1px solid black; border-collapse: collapse; width: 100% ;text-align: left; margin-top: 0; font-weight: lighter;" >
+            <tr style="background-color: orange; text-align: center;">
+                <th style="border: 1px solid black; border-collapse: collapse; padding: 3px 5px; font-weight: lighter;">Description</th>
+                <th style="border: 1px solid black; border-collapse: collapse; padding: 3px 5px; font-weight: lighter;">Category</th>
+            </tr>
+            <tr style="padding: 3px 5px; text-align: left; " th:each="item,iterStat : ${project.listOfProducts}" th:class="${iterStat.odd}? 'odd'">
+                <td th:if="${item.printable}" style = "font-weight: lighter; text-align: left; padding: 3px 5px; border: 1px solid black; border-collapse: collapse;">
+                    <div th:text="'•  ' +  ${item.product.getName() }" style="text-align: left;"></div>
+                </td>
+                <td th:if="${item.printable}" style = "font-weight: lighter; text-align: left; padding: 3px 5px; border: 1px solid black; border-collapse: collapse;">
+                    <div th:text="${item.product.getCategory() }" style="text-align: left;"></div>
+                </td>
+            </tr>
+        </table>
+        <div style="color: darkorange; text-align: right; font-size: 20px; padding: 5px; font-weight: bold;">SUBTOTAL:
+            <span th:text=" ${project.total} + '$'"></span>
+        </div>
+        <h3 style="font-style: italic; text-align: center;">Thank you for your business!</h3>
+        <br/>
+        <br/>
+        <div>Terms and conditions: 60%- deposit, 40% - after project completions.</div>
+        <div>Customer Acceptance :________________________________________________</div>
+        <div>Signature:___________________________________  Date:___________________</div> <br/>
+        <div style=" font-size: 12px">If you have any questions, please contact Ben or Will at <a href="tel:416-576-9111">416-576-9111</a>/<a href="tel:416-219-6304"> 416-219-6304</a>.</div>
+    </body>
+</html>

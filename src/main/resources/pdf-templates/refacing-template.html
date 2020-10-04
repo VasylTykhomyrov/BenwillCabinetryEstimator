@@ -1,0 +1,84 @@
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <style>
+            @font-face {
+                font-family: "Arial";
+                src: url("https://res.cloudinary.com/benwillcabinets/raw/upload/v1601832807/arial_oaqe2i.ttf");
+            }
+
+            body {
+                font-family: Arial;
+            }
+        </style>
+    </head>
+    <body>
+        <h2 th:text="'Production materials for ' + ${project.address} + ''" style="background-color: orange; text-align: center; padding: 20px 0; letter-spacing: 2px; margin: 0 0 20px 0; font-weight: lighter"></h2>
+        <table style="width: 100%; font-weight: lighter; margin-bottom: 15px;">
+            <tr style="display: flex; justify-content: space-between; flex-direction: column; align-content: center; align-items: center;">
+                <td>
+                    <div style="text-align: left; width: 100%;">
+                        <div style="color: darkorange; width: fit-content; font-weight: lighter; font-size: 20px;">
+                            Benwill Cabinets
+                        </div>
+                        <div style="width: 100%; font-size: 14px;">
+                            <div>Toronto ON</div>
+                            <div>Phone:<a href="tel:416-576-9111"> 416-576-9111</a>/<a href="tel:416-219-6304"> 416-219-6304</a></div>
+                            <div>info@benwillcabinets.com</div>
+                            <div style="margin-bottom: 15px;">
+                                <a href="www.benwillcabinets.com">www.benwillcabinets.com</a>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div style="text-align: right; width: 100%; margin-left: 274px;">
+                        <div style="width: 167px; text-align: right;">
+                            <img src="https://res.cloudinary.com/benwillcabinets/image/upload/v1601774567/Logo_djjyvm.png" alt="logo" style="width: 100%; height: auto;"/>
+                        </div>
+                        <table style="text-align: center; border: 1px solid black; border-collapse: collapse; width: 167px; margin-top: 5px; font-weight: lighter;">
+                            <tr>
+                                <th style="border: 1px solid black; border-collapse: collapse; padding: 3px 5px; background-color: orange; font-weight: lighter;">Quote #</th>
+                                <th style="border: 1px solid black; border-collapse: collapse; padding: 3px 5px; background-color: orange; font-weight: lighter;">Date</th>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid black; border-collapse: collapse; padding: 3px 5px; font-weight: lighter;" th:text="'26'+${project.getId()}"></td>
+                                <td style="border: 1px solid black; border-collapse: collapse; padding: 3px 5px; font-weight: lighter;" th:text="${project.getDateCreated()}"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <div>
+            <div style="background-color: lightgrey; font-weight: lighter; padding: 5px; border: 1px solid grey;">DOORS INFORMATION:</div>
+                <div style="margin: 5px 0 20px 0;">
+                    <div>Color -  <span th:text="${project.refacingInfo.colour}"></span></div>
+                    <div>Style -  <span th:text="${project.refacingInfo.style}"></span></div>
+                </div>
+        </div>
+        <div style="margin-top: 10px;">
+            <div style="background-color: lightgrey; font-weight: lighter; padding: 5px; border: 1px solid grey;">GABLES INFORMATION:</div>
+                <div style="margin: 5px 0 20px 0;">
+                    <div>Color -  <span th:text="${project.refacingInfo.colour}"></span></div>
+                    <div>Style -  Flat (Square)</div>
+                </div>
+        </div>
+        <table style="border: 1px solid black; border-collapse: collapse; width: 100% ;text-align: left; margin: 10px 0; font-weight: lighter;">
+            <tr style="background-color: orange; text-align: center;">
+                <th style="border: 1px solid black; border-collapse: collapse; padding: 3px 5px; font-weight: lighter;">Type</th>
+                <th style="border: 1px solid black; border-collapse: collapse; padding: 3px 5px; font-weight: lighter;">Width</th>
+                <th style="border: 1px solid black; border-collapse: collapse; padding: 3px 5px; font-weight: lighter;">Height</th>
+                <th style="border: 1px solid black; border-collapse: collapse; padding: 3px 5px; font-weight: lighter;">Special notes</th>
+            </tr>
+            <tr style="padding: 3px 5px; text-align: left;" th:each="item,iterStat : ${project.listOfRefacingItems}" th:class="${iterStat.odd}? 'odd'">
+                <td th:text="${item.type}" style = "font-weight: lighter; text-align: left; padding: 3px 5px; border: 1px solid black; border-collapse: collapse;">Door</td>
+                <td th:text="${item.width}" style = "font-weight: lighter; text-align: left; padding: 3px 5px; border: 1px solid black; border-collapse: collapse;">2.41</td>
+                <td th:text="${item.height}" style = "font-weight: lighter; text-align: left; padding: 3px 5px; border: 1px solid black; border-collapse: collapse;">3</td>
+                <td th:text="${item.specialNotes}" style = "font-weight: lighter; text-align: left; padding: 3px 5px; border: 1px solid black; border-collapse: collapse;">3</td>
+            </tr>
+        </table>
+        <br/>
+        <br/>
+        <div style="font-size: 12px">If you have any questions please call<a href="tel:416-219-6304"> 416-219-6304</a> or email to<a href="mailto:info@benwillcabinets.com"> info@benwillcabinets.com</a>.</div>
+    </body>
+</html>

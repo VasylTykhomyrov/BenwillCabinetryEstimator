@@ -16,7 +16,7 @@ public class ProjectItem {
     @ManyToOne(targetEntity=Product.class)
     private Product product;
     private double qty;
-
+    private boolean printable = true;
 
     public Integer getId() {
         return id;
@@ -28,6 +28,14 @@ public class ProjectItem {
 
     public void setCostProjectPrice(BigDecimal costProjectPrice) {
         this.costProjectPrice = costProjectPrice;
+    }
+
+    public boolean isPrintable() {
+        return printable;
+    }
+
+    public void setPrintable(boolean printable) {
+        this.printable = printable;
     }
 
     public BigDecimal getSellProjectPrice() {

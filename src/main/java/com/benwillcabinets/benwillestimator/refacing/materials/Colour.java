@@ -9,6 +9,7 @@ public enum Colour {
     LIGHT_GREY("LIGHT_GREY"),
     CHOCOLATE("CHOCOLATE"),
     TUXEDO("TUXEDO"),
+    LIGHT_GREY_HG("LIGHT_GREY_HG"),
     VANILA_STIX("VANILA_STIX")
     ;
     private String colour;

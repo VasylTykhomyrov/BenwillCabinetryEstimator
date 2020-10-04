@@ -6,10 +6,15 @@ import com.benwillcabinets.benwillestimator.domain.ProjectEstimate;
 import com.benwillcabinets.benwillestimator.domain.ProjectItem;
 import com.benwillcabinets.benwillestimator.refacing.RefacingInfo;
 import com.benwillcabinets.benwillestimator.refacing.RefacingItem;
+import com.benwillcabinets.benwillestimator.service.PdfGenerator;
 import com.benwillcabinets.benwillestimator.service.ProductService;
 import com.benwillcabinets.benwillestimator.service.ProjectEstimateService;
 import com.benwillcabinets.benwillestimator.service.RefacingItemService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -29,6 +34,8 @@ public class ProjectEstimatesController {
     private ProductService productService;
     @Autowired
     private RefacingItemService refacingItemService;
+    @Autowired
+    private PdfGenerator pdfGenerator;
 
     @PostMapping("/projects")
     ProjectEstimate addProject(@RequestBody ProjectEstimate project) {
@@ -96,6 +103,7 @@ public class ProjectEstimatesController {
         itemToUpdate.setCostProjectPrice(projectItem.getCostProjectPrice());
         itemToUpdate.setSellProjectPrice(projectItem.getSellProjectPrice());
         itemToUpdate.setQty(projectItem.getQty());
+        itemToUpdate.setPrintable(projectItem.isPrintable());
         projectEstimateService.save(project);
         return project;
     }
@@ -173,6 +181,41 @@ public class ProjectEstimatesController {
             }
         }
         return itemToDelete;
+    }
+
+    @GetMapping(value = "/projects/{id}/refacing-pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> getRefacingPDF(@PathVariable("id") int projectId) {
+        ProjectEstimate project =  projectEstimateService.findById(projectId).get();
+        try {
+            byte[] contents = pdfGenerator.createRefacingItemsPdf(project);
+            String filename = "refacing-" + System.currentTimeMillis() + ".pdf";
+            return buildPdfResponse(contents, filename);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new byte[]{},
+                    new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(value = "/projects/{id}/quote-pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> getQuotePDF(@PathVariable("id") int projectId) {
+        ProjectEstimate project =  projectEstimateService.findById(projectId).get();
+        try {
+            byte[] contents = pdfGenerator.createQuoteItemsPdf(project);
+            String filename = "quote-" + System.currentTimeMillis() + ".pdf";
+            return buildPdfResponse(contents, filename);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new byte[]{},
+                    new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private ResponseEntity<byte[]> buildPdfResponse(byte[] contents, String filename) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData(filename, filename);
+        headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+        ResponseEntity<byte[]> response = new ResponseEntity<>(contents, headers, HttpStatus.OK);
+        return response;
     }
 
     @GetMapping("/projects/{id}/items")

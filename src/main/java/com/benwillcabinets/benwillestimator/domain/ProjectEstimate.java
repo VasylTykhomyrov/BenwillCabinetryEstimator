@@ -2,9 +2,13 @@ package com.benwillcabinets.benwillestimator.domain;
 
 import com.benwillcabinets.benwillestimator.refacing.RefacingInfo;
 import com.benwillcabinets.benwillestimator.refacing.RefacingItem;
+import com.sun.scenario.effect.impl.prism.PrImage;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -20,6 +24,12 @@ public class ProjectEstimate {
     private List<RefacingItem> listOfRefacingItems = new ArrayList<>();
     private String address;
     private String contactInfo;
+
+    public static String getDateCreated() {
+        LocalDate today = LocalDate.now();
+        return today.toString();
+    }
+
 
     public Integer getId() {
         return id;
@@ -55,6 +65,15 @@ public class ProjectEstimate {
 
     public String getAddress() {
         return address;
+    }
+
+    public String getTotal() {
+        List<ProjectItem> items = getListOfProducts();
+        double totalSellPrice=0.0;
+        for (ProjectItem item : items) {
+            totalSellPrice += (item.getSellProjectPrice().doubleValue() * item.getQty());
+        }
+        return Double.toString(totalSellPrice);
     }
 
     public void setAddress(String address) {
