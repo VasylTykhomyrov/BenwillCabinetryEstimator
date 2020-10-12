@@ -1,10 +1,17 @@
 package com.benwillcabinets.benwillestimator.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 @Entity
 public class ProjectItem {
@@ -18,8 +25,28 @@ public class ProjectItem {
     private double qty;
     private boolean printable = true;
 
+    @JsonFormat(pattern="yyyy-MM-dd")
+    private Date scheduledFor;
+    private String assignedTo;
+
     public Integer getId() {
         return id;
+    }
+
+    public Date getScheduledFor() {
+        return scheduledFor;
+    }
+
+    public void setScheduledFor(Date scheduledFor) {
+        this.scheduledFor = scheduledFor;
+    }
+
+    public String getAssignedTo() {
+        return assignedTo;
+    }
+
+    public void setAssignedTo(String assignedTo) {
+        this.assignedTo = assignedTo;
     }
 
     public BigDecimal getCostProjectPrice() {

@@ -104,6 +104,8 @@ public class ProjectEstimatesController {
         itemToUpdate.setSellProjectPrice(projectItem.getSellProjectPrice());
         itemToUpdate.setQty(projectItem.getQty());
         itemToUpdate.setPrintable(projectItem.isPrintable());
+        itemToUpdate.setAssignedTo(projectItem.getAssignedTo());
+        itemToUpdate.setScheduledFor(projectItem.getScheduledFor());
         projectEstimateService.save(project);
         return project;
     }
