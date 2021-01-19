@@ -13,7 +13,7 @@
     </head>
     <body>
         <h1 style="background-color: orange; text-align: center; padding: 20px 0; letter-spacing: 2px; margin: 0 0 20px 0; font-weight: lighter">
-            QUOTATION
+            SCHEDULING
         </h1>
         <table style="width: 100%; font-weight: lighter;">
             <tr style="display: flex; justify-content: space-between; flex-direction: column; align-content: center; align-items: center;">
@@ -57,27 +57,28 @@
         <div style="margin: 5px 0 5px 0;">Renovation services as listed below:</div>
         <table style="border: 1px solid black; border-collapse: collapse; width: 100% ;text-align: left; margin-top: 0; font-weight: lighter;" >
             <tr style="background-color: orange; text-align: center;">
-                <th style="border: 1px solid black; border-collapse: collapse; padding: 3px 5px; font-weight: lighter;">Description</th>
-                <th style="border: 1px solid black; border-collapse: collapse; padding: 3px 5px; font-weight: lighter;">Category</th>
+                <th style="border: 1px solid black; border-collapse: collapse; padding: 3px 5px; font-weight: lighter;">Material/Service</th>
+                <th style="border: 1px solid black; border-collapse: collapse; padding: 3px 5px; font-weight: lighter;">Scheduled for</th>
+                <th style="border: 1px solid black; border-collapse: collapse; padding: 3px 5px; font-weight: lighter;"># of days</th>
+                <th style="border: 1px solid black; border-collapse: collapse; padding: 3px 5px; font-weight: lighter;">Assigned to</th>
             </tr>
-            <tr style="padding: 3px 5px; text-align: left; " th:each="item,iterStat : ${project.listOfProducts}" th:class="${iterStat.odd}? 'odd'">
+            <tr style="padding: 3px 5px; text-align: left; " th:each="item,iterStat : ${project.listOfServices}" th:class="${iterStat.odd}? 'odd'">
                 <td th:if="${item.printable}" style = "font-weight: lighter; text-align: left; padding: 3px 5px; border: 1px solid black; border-collapse: collapse;">
                     <div th:text="'•  ' +  ${item.product.getName() }" style="text-align: left;"></div>
                 </td>
                 <td th:if="${item.printable}" style = "font-weight: lighter; text-align: left; padding: 3px 5px; border: 1px solid black; border-collapse: collapse;">
-                    <div th:text="${item.product.getCategory() }" style="text-align: left;"></div>
+                    <div th:text="${item.scheduledForFormatted }" style="text-align: left;"></div>
+                </td>
+                <td th:if="${item.printable}" style = "font-weight: lighter; text-align: left; padding: 3px 5px; border: 1px solid black; border-collapse: collapse;">
+                    <div th:text="${item.duration }" style="text-align: left;"></div>
+                </td>
+                <td th:if="${item.printable}" style = "font-weight: lighter; text-align: left; padding: 3px 5px; border: 1px solid black; border-collapse: collapse;">
+                    <div th:text="${item.assignedTo }" style="text-align: left;"></div>
                 </td>
             </tr>
         </table>
-        <div style="color: darkorange; text-align: right; font-size: 20px; padding: 5px; font-weight: bold;">SUBTOTAL:
-            <span th:text=" ${project.total} + '$'"></span>
-        </div>
+
         <h3 style="font-style: italic; text-align: center;">Thank you for your business!</h3>
-        <br/>
-        <br/>
-        <div>Terms and conditions: __%- deposit, __% - after project completions.</div>
-        <div>Customer Acceptance :________________________________________________</div>
-        <div>Signature:___________________________________  Date:___________________</div> <br/>
-        <div style=" font-size: 12px">If you have any questions, please contact Ben or Will at <a href="tel:416-576-9111">416-576-9111</a>/<a href="tel:416-219-6304"> 416-219-6304</a>.</div>
+        <div>** Schedule may vary due to construction process. Client will be notified if any adjustments will be required.</div>
     </body>
 </html>

@@ -20,6 +20,11 @@ public class PdfGenerator {
         return generatePdfFromHtml(html);
     }
 
+    public byte[] createSchedulingItemsPdf(ProjectEstimate project) throws Exception {
+        String html = parseThymeleafTemplate("pdf-templates/scheduling-template", project);
+        return generatePdfFromHtml(html);
+    }
+
     public byte[] createQuoteItemsPdf(ProjectEstimate project) throws Exception {
         String html = parseThymeleafTemplate("pdf-templates/quote-template", project);
         return generatePdfFromHtml(html);

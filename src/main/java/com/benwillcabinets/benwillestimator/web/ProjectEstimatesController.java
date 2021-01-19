@@ -4,12 +4,14 @@ import com.benwillcabinets.benwillestimator.domain.Category;
 import com.benwillcabinets.benwillestimator.domain.Product;
 import com.benwillcabinets.benwillestimator.domain.ProjectEstimate;
 import com.benwillcabinets.benwillestimator.domain.ProjectItem;
+import com.benwillcabinets.benwillestimator.domain.Transaction;
 import com.benwillcabinets.benwillestimator.refacing.RefacingInfo;
 import com.benwillcabinets.benwillestimator.refacing.RefacingItem;
 import com.benwillcabinets.benwillestimator.service.PdfGenerator;
 import com.benwillcabinets.benwillestimator.service.ProductService;
 import com.benwillcabinets.benwillestimator.service.ProjectEstimateService;
 import com.benwillcabinets.benwillestimator.service.RefacingItemService;
+import com.benwillcabinets.benwillestimator.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,9 +22,11 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -35,11 +39,21 @@ public class ProjectEstimatesController {
     @Autowired
     private RefacingItemService refacingItemService;
     @Autowired
+    private TransactionService transactionService;
+    @Autowired
     private PdfGenerator pdfGenerator;
 
     @PostMapping("/projects")
     ProjectEstimate addProject(@RequestBody ProjectEstimate project) {
+        project.setDateCreated(new Date());
         return projectEstimateService.save(project);
+    }
+
+    @DeleteMapping("/projects/{id}")
+    ResponseEntity<Void> deleteProject(@PathVariable("id") int projectId) {
+        ProjectEstimate project =  projectEstimateService.findById(projectId).get();
+        projectEstimateService.delete(project);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @PostMapping("/projects/{id}/items")
@@ -68,8 +82,46 @@ public class ProjectEstimatesController {
             currentInfo.setStyle(info.getStyle());
         }
         project.setRefacingInfo(currentInfo);
+        project.getListOfRefacingItems().stream()
+                .forEach(r -> r.setCostPSF(project.getRefacingInfo().getSFPrice()));
         projectEstimateService.save(project);
         return project;
+    }
+
+    @PostMapping("/projects/{id}/transactions")
+    ProjectEstimate addTransaction(@PathVariable("id") int projectId, @RequestBody Transaction trans) {
+        ProjectEstimate project =  projectEstimateService.findById(projectId).get();
+        transactionService.save(trans);
+        project.getListOfTransactions().add(trans);
+        projectEstimateService.save(project);
+        return project;
+    }
+
+    @DeleteMapping("/projects/{id}/transactions/{transId}")
+    ProjectEstimate removeTransaction(@PathVariable("id") int projectId, @PathVariable("transId") int transId) {
+        ProjectEstimate project =  projectEstimateService.findById(projectId).get();
+        Transaction transactionToRemove = findTransaction(transId, project);
+        project.getListOfTransactions().remove(transactionToRemove);
+        projectEstimateService.save(project);
+        return project;
+    }
+
+
+    @PutMapping("/projects/{id}/transactions/{transId}")
+    ProjectEstimate updateTransaction(@PathVariable("id") int projectId, @PathVariable("transId") int transId,
+                                      @RequestBody Transaction transaction) {
+        ProjectEstimate project =  projectEstimateService.findById(projectId).get();
+        Transaction transactionToUpdate = findTransaction(transId, project);
+        transactionToUpdate.setNote(transaction.getNote());
+        transactionToUpdate.setAllocatedFor(transaction.getAllocatedFor());
+        projectEstimateService.save(project);
+        return project;
+    }
+
+    @GetMapping("/projects/{id}/transactions")
+    List<Transaction> getTransactions(@PathVariable("id") int projectId) {
+        ProjectEstimate project =  projectEstimateService.findById(projectId).get();
+        return project.getListOfTransactions();
     }
 
     @PostMapping("/projects/{id}/refacing-items")
@@ -104,8 +156,12 @@ public class ProjectEstimatesController {
         itemToUpdate.setSellProjectPrice(projectItem.getSellProjectPrice());
         itemToUpdate.setQty(projectItem.getQty());
         itemToUpdate.setPrintable(projectItem.isPrintable());
+        itemToUpdate.setDuration(projectItem.getDuration());
         itemToUpdate.setAssignedTo(projectItem.getAssignedTo());
         itemToUpdate.setScheduledFor(projectItem.getScheduledFor());
+        itemToUpdate.setPaid(projectItem.isPaid());
+        itemToUpdate.setCompleted(projectItem.isCompleted());
+        itemToUpdate.setPaidBy(projectItem.getPaidBy());
         projectEstimateService.save(project);
         return project;
     }
@@ -175,6 +231,16 @@ public class ProjectEstimatesController {
         return itemToDelete;
     }
 
+    private Transaction findTransaction(int transId, ProjectEstimate project) {
+        Transaction result = null;
+        for(int i=0; i < project.getListOfTransactions().size(); i++){
+            if(project.getListOfTransactions().get(i).getId().equals(transId)) {
+                result = project.getListOfTransactions().get(i);
+            }
+        }
+        return result;
+    }
+
     private ProjectItem findProjectItem(@PathVariable("itemId") int itemId, ProjectEstimate project) {
         ProjectItem itemToDelete = null;
         for(int i=0; i < project.getListOfProducts().size(); i++){
@@ -191,6 +257,19 @@ public class ProjectEstimatesController {
         try {
             byte[] contents = pdfGenerator.createRefacingItemsPdf(project);
             String filename = "refacing-" + System.currentTimeMillis() + ".pdf";
+            return buildPdfResponse(contents, filename);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new byte[]{},
+                    new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(value = "/projects/{id}/scheduling-pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> getSchedulingPDF(@PathVariable("id") int projectId) {
+        ProjectEstimate project =  projectEstimateService.findById(projectId).get();
+        try {
+            byte[] contents = pdfGenerator.createSchedulingItemsPdf(project);
+            String filename = "scheduling-" + System.currentTimeMillis() + ".pdf";
             return buildPdfResponse(contents, filename);
         } catch (Exception e) {
             return new ResponseEntity<>(new byte[]{},
@@ -224,6 +303,41 @@ public class ProjectEstimatesController {
     List<ProjectItem> getProductItems(@PathVariable("id") int projectId) {
         ProjectEstimate project =  projectEstimateService.findById(projectId).get();
         return project.getListOfProducts();
+    }
+
+    @GetMapping("/projects/{id}/items/sorted/{property}")
+    List<ProjectItem> getProductItemsSorted(@PathVariable("id") int projectId, @PathVariable("property") String property) {
+        ProjectEstimate project =  projectEstimateService.findById(projectId).get();
+
+        Comparator<? super ProjectItem> comparator = new Comparator<ProjectItem>() {
+            @Override
+            public int compare(ProjectItem o1, ProjectItem o2) {
+                if(property.equals("id")) {
+                    return o1.getId().compareTo(o2.getId());
+                } else if(property.equals("material")) {
+                    return o1.getProduct().getName().compareTo(o2.getProduct().getName());
+                } else if(property.equals("category")) {
+                    return o1.getProduct().getCategory().name().compareTo(o2.getProduct().getCategory().name());
+                } else if(property.equals("cost")) {
+                    return o1.getCostProjectPrice().compareTo(o2.getCostProjectPrice());
+                } else if(property.equals("sell")) {
+                    return o1.getSellProjectPrice().compareTo(o2.getSellProjectPrice());
+                } else if(property.equals("paid")) {
+                    Integer val1 = o1.isPaid() ? 1 :0;
+                    Integer val2 = o2.isPaid() ? 1 :0;
+                    return val1.compareTo(val2);
+                }
+                return 0;
+            }
+        };
+        return project.getListOfProducts().stream()
+                .sorted(comparator).collect(Collectors.toList());
+    }
+
+    @GetMapping("/projects/{id}/service-items")
+    List<ProjectItem> getServiceItems(@PathVariable("id") int projectId) {
+        ProjectEstimate project =  projectEstimateService.findById(projectId).get();
+        return project.getListOfServices();
     }
 
     @GetMapping("/projects/{id}/refacing-items")

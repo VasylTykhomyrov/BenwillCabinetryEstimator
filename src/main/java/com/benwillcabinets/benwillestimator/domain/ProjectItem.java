@@ -1,6 +1,7 @@
 package com.benwillcabinets.benwillestimator.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.Entity;
@@ -8,10 +9,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.Locale;
 
 @Entity
 public class ProjectItem {
@@ -24,9 +27,13 @@ public class ProjectItem {
     private Product product;
     private double qty;
     private boolean printable = true;
+    private boolean paid = false;
+    private boolean completed = false;
+    private String paidBy;
 
     @JsonFormat(pattern="yyyy-MM-dd")
     private Date scheduledFor;
+    private int duration;
     private String assignedTo;
 
     public Integer getId() {
@@ -35,6 +42,44 @@ public class ProjectItem {
 
     public Date getScheduledFor() {
         return scheduledFor;
+    }
+
+    @JsonIgnore
+    public String getScheduledForFormatted() {
+        SimpleDateFormat format = new SimpleDateFormat("EEE, MMM d, ''yy", Locale.CANADA);
+        return scheduledFor == null ? "" : format.format(scheduledFor);
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
+
+    public boolean isPaid() {
+        return paid;
+    }
+
+    public void setPaid(boolean paid) {
+        this.paid = paid;
+    }
+
+    public String getPaidBy() {
+        return paidBy;
+    }
+
+    public void setPaidBy(String paidBy) {
+        this.paidBy = paidBy;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
     }
 
     public void setScheduledFor(Date scheduledFor) {
